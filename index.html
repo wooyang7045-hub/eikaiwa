@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -225,7 +226,7 @@
 // ============================================================
 
 // GASのWebアプリURL（デプロイしたときのURL /exec で終わるもの）
-var GAS_URL = "https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbxU6kJMip1_rzfMyD3Q0bssA0lRNL_PytYPIXIkligEvBV1PjEiT8xJHUSpL3_CFi-l/exec";
+var GAS_URL = "https://script.google.com/macros/s/AKfycbxU6kJMip1_rzfMyD3Q0bssA0lRNL_PytYPIXIkligEvBV1PjEiT8xJHUSpL3_CFi-l/exec";
 
 // ============================================================
 //  アバター定義
@@ -284,30 +285,55 @@ window.onload = function() {
 };
 
 // ============================================================
-//  GASから全生徒データを1回で取得
+//  GASから全生徒データを取得（JSONP方式 — CORS問題を完全回避）
 // ============================================================
 function loadAllStudents() {
   document.getElementById('loadStatus').innerText = '名簿を読み込み中…';
-  fetch(GAS_URL + "?action=getAllStudents")
-    .then(function(r){ return r.json(); })
-    .then(function(data) {
-      fighters = data; // [{grade,cls,id,name,rank,totalSessions,totalWords,maxTurns,totalTurns}]
-
-      // 学年リストを生成
-      var grades = [];
-      data.forEach(function(s) {
-        if (grades.indexOf(s.grade) === -1) grades.push(s.grade);
-      });
-      grades.sort();
-
-      var sel = document.getElementById('gradeSel');
-      sel.innerHTML = '<option value="">📚 学年を選択してください</option>';
-      grades.forEach(function(g) { sel.add(new Option(g + "年生", g)); });
-      document.getElementById('loadStatus').innerText = '';
-    })
-    .catch(function(e) {
-      document.getElementById('loadStatus').innerText = '⚠️ 名簿の読み込みに失敗しました: ' + e.message;
+  gasJsonp("getAllStudents", null, function(data) {
+    fighters = data;
+    var grades = [];
+    data.forEach(function(s) {
+      if (grades.indexOf(s.grade) === -1) grades.push(s.grade);
     });
+    grades.sort();
+    var sel = document.getElementById('gradeSel');
+    sel.innerHTML = '<option value="">📚 学年を選択してください</option>';
+    grades.forEach(function(g) { sel.add(new Option(g + "年生", g)); });
+    document.getElementById('loadStatus').innerText = '';
+  }, function(e) {
+    document.getElementById('loadStatus').innerText = '⚠️ 名簿の読み込みに失敗しました: ' + e;
+  });
+}
+
+// ============================================================
+//  JSONP汎用関数（GASとの通信に使用）
+//  GETはJSONP、POSTはGETパラメータにJSONを乗せる
+// ============================================================
+var jsonpCallbackCounter = 0;
+function gasJsonp(action, postData, onSuccess, onError) {
+  var cbName = '__gasCb' + (++jsonpCallbackCounter);
+  var script = document.createElement('script');
+  var timer = null;
+
+  window[cbName] = function(data) {
+    clearTimeout(timer);
+    script.remove();
+    delete window[cbName];
+    onSuccess(data);
+  };
+
+  timer = setTimeout(function() {
+    script.remove();
+    delete window[cbName];
+    onError('タイムアウト（10秒）');
+  }, 10000);
+
+  var url = GAS_URL + "?action=" + encodeURIComponent(action) + "&callback=" + cbName;
+  if (postData) {
+    url += "&data=" + encodeURIComponent(JSON.stringify(postData));
+  }
+  script.src = url;
+  document.head.appendChild(script);
 }
 
 function loadClasses() {
@@ -703,35 +729,27 @@ function endSession() {
 
   showScreen('result');
 
-  // GASにデータを送信して保存
+  // GASにデータをJSONPで送信して保存
   var grade = document.getElementById('gradeSel').value;
   var cls   = document.getElementById('classSel').value;
 
-  fetch(GAS_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      action:     "recordSession",
-      grade:      grade,
-      cls:        cls,
-      id:         myData.id,
-      name:       myData.name,
-      words:      sessionWords,
-      turns:      sessionTurns,
-      transcript: sessionTranscript
-    })
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(res){
+  gasJsonp("recordSession", {
+    grade:      grade,
+    cls:        cls,
+    id:         myData.id,
+    name:       myData.name,
+    words:      sessionWords,
+    turns:      sessionTurns,
+    transcript: sessionTranscript
+  }, function(res) {
     document.getElementById('saveStatus').innerText = res.status === "OK" ? "✅ 保存完了！" : "⚠️ 保存エラー: " + res.message;
     if (res.status === "OK") {
       myData.totalSessions = (Number(myData.totalSessions)||0) + 1;
       myData.totalWords    = newTotalWords;
       myData.maxTurns      = newMaxTurns;
     }
-  })
-  .catch(function(e){
-    document.getElementById('saveStatus').innerText = "⚠️ 保存に失敗しました（ネットワークを確認してください）";
+  }, function(e) {
+    document.getElementById('saveStatus').innerText = "⚠️ 保存に失敗しました: " + e;
   });
 }
 </script>
