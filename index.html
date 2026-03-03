@@ -274,8 +274,13 @@
     <div id="apiKeyBox">
       <p>🔑 Anthropic APIキーを入力してください</p>
       <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off">
+      <div id="savedKeyInfo" style="display:none; margin-top:8px; padding:8px 10px; background:#0f0f1a; border-radius:8px; font-size:0.75rem; color:#f5a623;">
+        💾 保存済みのキーが入力されています。
+        <button onclick="clearSavedKey()" style="width:auto; padding:2px 10px; margin-left:8px; margin-top:0; background:#e94560; font-size:0.75rem; border-radius:6px; border:none; color:white; cursor:pointer;">クリア</button>
+      </div>
       <p class="api-tip">
-        キーは <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> で取得できます。
+        キーは <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> で取得できます。<br>
+        ※ キーはこのブラウザのみに保存されます。
       </p>
     </div>
 
@@ -417,6 +422,13 @@ var SPEED_MAP = { slow: 0.65, normal: 1.0, fast: 1.35 };
 var SPEED_LABEL = { slow: "🐢 遅い", normal: "🚶 普通", fast: "🐆 速い" };
 
 // ============================================================
+//  ユーティリティ
+// ============================================================
+function escHtml(str) {
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// ============================================================
 //  状態変数
 // ============================================================
 var myData          = null;
@@ -447,7 +459,10 @@ window.onload = function() {
 
   // 保存済みAPIキー復元
   var savedKey = localStorage.getItem('eikaiwa_apikey');
-  if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
+  if (savedKey) {
+    document.getElementById('apiKeyInput').value = savedKey;
+    document.getElementById('savedKeyInfo').style.display = 'block';
+  }
 
   // アバターグリッド生成
   buildAvatarGrid();
@@ -583,8 +598,9 @@ function goToAvatarSelect() {
   if (!id) { alert("名前を選んでください！"); return; }
 
   apiKey = document.getElementById("apiKeyInput").value.trim();
-  if (!apiKey || !apiKey.startsWith("sk-ant-")) {
-    alert("正しいAnthropicのAPIキーを入力してください。\n（sk-ant-... で始まるキーです）");
+  // ★ sk-ant- または sk- で始まるキーを許可（形式の変更に対応）
+  if (!apiKey || apiKey.length < 20) {
+    alert("APIキーを入力してください。\nAnthropicのコンソール（console.anthropic.com）でAPIキーを取得してください。");
     return;
   }
   localStorage.setItem("eikaiwa_apikey", apiKey);
@@ -684,17 +700,24 @@ function handleMic() {
     finalTrans  = "";
     document.getElementById("micBtn").innerText = "🛑 止めて送信";
     document.getElementById("micBtn").classList.add("rec");
-    document.getElementById("liveText").innerText = "👂 聞いています… 話し終わったら「止めて送信」を押してください";
+    document.getElementById("liveText").innerHTML = "👂 聞いています… 話し終わったら「止めて送信」を押してください";
   };
 
   recognition.onresult = function(e) {
+    // ★ finalTrans はここでリセットしない（onstart でのみリセット）
+    // e.resultIndex から新しい確定テキストだけを追加で累積する
     var interim = "";
-    finalTrans  = "";
     for (var i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) finalTrans += e.results[i][0].transcript + " ";
-      else interim += e.results[i][0].transcript;
+      if (e.results[i].isFinal) {
+        finalTrans += e.results[i][0].transcript + " ";
+      } else {
+        interim += e.results[i][0].transcript;
+      }
     }
-    document.getElementById("liveText").innerText = "🎤 " + (finalTrans || interim);
+    // 確定済み（白）＋ 未確定（青斜体）を liveText に表示
+    document.getElementById("liveText").innerHTML =
+      '<span style="color:#eeeef0;">' + escHtml(finalTrans) + '</span>' +
+      '<span style="color:#5588bb; font-style:italic;">' + escHtml(interim) + '</span>';
   };
 
   recognition.onerror = function(e) {
@@ -733,7 +756,7 @@ function stopRec() {
 
   var text = finalTrans.trim();
   if (!text) {
-    document.getElementById("liveText").innerText = "⚠️ 聞き取れませんでした。もう一度試してください。";
+    document.getElementById("liveText").innerHTML = "⚠️ 聞き取れませんでした。もう一度試してください。";
     return;
   }
 
@@ -775,6 +798,15 @@ function stopRec() {
 function resetMicBtn() {
   document.getElementById("micBtn").innerText = "🎤 話す";
   document.getElementById("micBtn").classList.remove("rec");
+}
+
+// ★ 保存済みAPIキーをクリア
+function clearSavedKey() {
+  localStorage.removeItem("eikaiwa_apikey");
+  document.getElementById("apiKeyInput").value = "";
+  document.getElementById("savedKeyInfo").style.display = "none";
+  apiKey = "";
+  alert("保存済みのAPIキーをクリアしました。新しいキーを入力してください。");
 }
 
 // ============================================================
@@ -1026,4 +1058,5 @@ function endSession() {
 </script>
 </body>
 </html>
+
 
