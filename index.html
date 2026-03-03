@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -9,127 +8,260 @@
   <meta name="apple-mobile-web-app-title" content="AI英会話道場">
   <title>AI英会話道場</title>
   <style>
+    /* ============================================================
+       変数・リセット
+    ============================================================ */
     :root {
-      --bg:#0f0f1a; --card:#1a1a2e; --accent:#e94560; --accent2:#f5a623;
-      --blue:#3a86ff; --green:#27ae60; --text:#eeeef0; --muted:#8888aa;
-      --bubble-me:#0f3460; --bubble-ai:#2d1b69; --border:#2a2a4a;
+      --bg:        #0f0f1a;
+      --card:      #1a1a2e;
+      --accent:    #e94560;
+      --accent2:   #f5a623;
+      --blue:      #3a86ff;
+      --green:     #27ae60;
+      --text:      #eeeef0;
+      --muted:     #8888aa;
+      --bubble-me: #0f3460;
+      --bubble-ai: #2d1b69;
+      --border:    #2a2a4a;
     }
-    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-    html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,'Hiragino Sans',sans-serif;}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif; }
 
-    .screen{display:none;}
-    .screen.active{display:block;}
+    /* ============================================================
+       画面共通
+    ============================================================ */
+    .screen { display: none; }
+    .screen.active { display: block; }
 
-    /* ログイン */
-    #screen-login{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
-    #screen-login.active{display:flex;}
-    .logo-area{text-align:center;margin-bottom:28px;}
-    .logo-area .lg-emoji{font-size:4rem;display:block;margin-bottom:8px;}
-    .logo-area h1{font-size:1.8rem;font-weight:900;color:var(--accent);}
-    .logo-area p{font-size:0.85rem;color:var(--muted);margin-top:6px;}
-    .login-box{width:100%;max-width:380px;}
-    .login-box select{
-      width:100%;padding:14px 16px;margin-bottom:12px;
-      background:var(--card);color:var(--text);
-      border:1px solid var(--border);border-radius:14px;
-      font-size:1rem;appearance:none;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-      background-repeat:no-repeat;background-position:right 16px center;
+    /* ============================================================
+       ① ログイン画面
+    ============================================================ */
+    #screen-login {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px;
     }
-    .login-box select option{background:#1a1a2e;}
+    #screen-login.active { display: flex; }
+
+    .logo-area { text-align: center; margin-bottom: 28px; }
+    .logo-area .lg-emoji { font-size: 4rem; display: block; margin-bottom: 8px; }
+    .logo-area h1 { font-size: 1.8rem; font-weight: 900; color: var(--accent); }
+    .logo-area p  { font-size: 0.85rem; color: var(--muted); margin-top: 6px; }
+
+    .login-box { width: 100%; max-width: 380px; }
 
     /* APIキー入力 */
-    #apiKeyBox{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;}
-    #apiKeyBox p{font-size:0.8rem;color:var(--muted);margin-bottom:8px;}
-    #apiKeyBox input{
-      width:100%;padding:12px;background:#0f0f1a;color:var(--text);
-      border:1px solid var(--border);border-radius:10px;font-size:0.9rem;
+    #apiKeyBox {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 16px; margin-bottom: 14px;
     }
-    #apiKeyBox .api-tip{font-size:0.72rem;color:var(--muted);margin-top:6px;}
-    #apiKeyBox .api-tip a{color:var(--blue);}
-
-    /* アバター選択 */
-    #screen-avatar{padding:20px;max-width:480px;margin:0 auto;}
-    #screen-avatar.active{display:block;}
-    .sec-title{text-align:center;font-size:1.3rem;font-weight:800;color:var(--accent);margin-bottom:4px;}
-    .sec-sub{text-align:center;font-size:0.8rem;color:var(--muted);margin-bottom:18px;}
-    .avatar-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;}
-    .av-card{
-      background:var(--card);border:2px solid var(--border);border-radius:18px;
-      padding:18px 12px;text-align:center;cursor:pointer;transition:0.15s;
+    #apiKeyBox p { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; }
+    #apiKeyBox input {
+      width: 100%; padding: 12px; background: #0f0f1a; color: var(--text);
+      border: 1px solid var(--border); border-radius: 10px; font-size: 0.9rem;
     }
-    .av-card:hover{border-color:#555;}
-    .av-card.sel{border-color:var(--accent);background:#2a0d1e;}
-    .av-card .av-em{font-size:3rem;line-height:1;}
-    .av-card .av-nm{font-size:1rem;font-weight:700;margin-top:8px;}
-    .av-card .av-fl{font-size:0.75rem;color:var(--muted);margin-top:3px;}
-    .av-card .av-tr{font-size:0.7rem;color:var(--accent2);margin-top:4px;background:rgba(245,166,35,.12);border-radius:20px;padding:2px 8px;display:inline-block;}
+    #apiKeyBox .api-tip { font-size: 0.72rem; color: var(--muted); margin-top: 6px; }
+    #apiKeyBox .api-tip a { color: var(--blue); }
 
-    /* ボタン */
-    .btn{width:100%;padding:16px;border:none;border-radius:16px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:opacity .15s,transform .1s;}
-    .btn:active{transform:scale(.97);}
-    .btn-primary{background:var(--accent);color:white;}
-    .btn-secondary{background:var(--card);color:var(--muted);border:1px solid var(--border);margin-top:10px;}
+    .login-box select {
+      width: 100%; padding: 14px 16px; margin-bottom: 12px;
+      background: var(--card); color: var(--text);
+      border: 1px solid var(--border); border-radius: 14px;
+      font-size: 1rem; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 16px center;
+    }
+    .login-box select option { background: #1a1a2e; }
 
-    /* チャット画面 */
-    #screen-chat{display:flex;flex-direction:column;height:100vh;}
-    #screen-chat.active{display:flex;}
-    #chatHeader{background:var(--card);padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);flex-shrink:0;}
-    #chatHeader .hd-av{font-size:2.2rem;flex-shrink:0;}
-    #chatHeader .hd-info h3{font-size:1rem;font-weight:700;}
-    #chatHeader .hd-info p{font-size:0.72rem;color:var(--muted);}
-    #endBtnTop{margin-left:auto;padding:8px 14px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:0.82rem;font-weight:700;cursor:pointer;flex-shrink:0;}
-    #statsBar{background:#0a0a14;padding:8px 16px;display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
-    .st-item{flex:1;text-align:center;}
-    .st-item .sv{font-size:1.3rem;font-weight:800;color:var(--accent2);display:block;line-height:1.2;}
-    .st-item .sl{font-size:0.65rem;color:var(--muted);}
-    .st-item+.st-item{border-left:1px solid var(--border);}
-    #chatBox{flex:1;overflow-y:auto;padding:16px;scroll-behavior:smooth;}
-    .bwrap{display:flex;margin-bottom:16px;gap:10px;align-items:flex-end;}
-    .bwrap.me{flex-direction:row-reverse;}
-    .bava{font-size:1.8rem;flex-shrink:0;}
-    .bubble{max-width:78%;padding:12px 16px;border-radius:20px;line-height:1.75;font-size:0.95rem;word-break:break-word;}
-    .bubble.ai{background:var(--bubble-ai);border-bottom-left-radius:4px;}
-    .bubble.me{background:var(--bubble-me);border-bottom-right-radius:4px;}
-    .wbtn{display:inline;background:none;border:none;color:inherit;cursor:pointer;padding:0 1px;font-size:inherit;font-family:inherit;text-decoration:underline dotted rgba(255,255,255,.4);width:auto;}
-    .wbtn:hover{color:var(--accent2);}
-    .transl{display:inline-block;background:var(--accent2);color:#1a1000;font-size:.72rem;padding:2px 9px;border-radius:20px;margin-left:4px;font-weight:700;vertical-align:middle;animation:popIn .2s ease;}
-    @keyframes popIn{from{transform:scale(.6);opacity:0;}to{transform:scale(1);opacity:1;}}
-    .word-badge{font-size:.68rem;color:var(--muted);margin-top:5px;}
-    .bubble.loading-dots{padding:14px 18px;}
-    .dot{display:inline-block;width:7px;height:7px;background:var(--muted);border-radius:50%;margin:0 2px;animation:bounce 1.2s infinite;}
-    .dot:nth-child(2){animation-delay:.2s;}.dot:nth-child(3){animation-delay:.4s;}
-    @keyframes bounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-8px);}}
-    #liveText{flex-shrink:0;min-height:44px;background:#08080f;padding:10px 16px;font-size:.85rem;color:var(--blue);border-top:1px solid var(--border);border-left:3px solid var(--blue);}
-    #inputBar{flex-shrink:0;display:flex;gap:10px;padding:10px 16px 16px;background:var(--card);border-top:1px solid var(--border);}
-    #micBtn{flex:1;padding:16px;border:none;border-radius:16px;background:var(--green);color:white;font-size:1.05rem;font-weight:700;cursor:pointer;}
-    #micBtn.rec{background:var(--accent);animation:pulse 1s infinite;}
-    #micBtn:disabled{background:#444;opacity:.6;cursor:not-allowed;}
-    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.65;}}
+    #loadStatus {
+      text-align: center; font-size: 0.85rem; padding: 10px;
+      color: var(--muted); min-height: 2em;
+    }
+    #loadStatus.error { color: var(--accent); font-size: 0.8rem; line-height: 1.6; }
 
-    /* 結果画面 */
-    #screen-result{padding:24px;max-width:420px;margin:0 auto;}
-    #screen-result.active{display:block;}
-    .result-card{background:var(--card);border-radius:20px;padding:28px 20px;text-align:center;margin-bottom:16px;}
-    .result-card h2{color:var(--accent);font-size:1.4rem;margin-bottom:16px;}
-    .res-emoji{font-size:3.5rem;margin:8px 0;}
-    .res-comment{color:var(--muted);font-size:.9rem;margin:10px 0 20px;}
-    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0;}
-    .stat-box{background:#0a0a14;border-radius:14px;padding:16px 8px;}
-    .stat-box .sv{font-size:2rem;font-weight:800;color:var(--accent2);display:block;}
-    .stat-box .sl{font-size:.7rem;color:var(--muted);margin-top:3px;display:block;}
-    .rec-row{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border);font-size:.85rem;}
-    .rec-row span:last-child{color:var(--accent2);font-weight:700;}
-    #chatBox::-webkit-scrollbar{width:4px;}
-    #chatBox::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+    /* ============================================================
+       ② アバター選択画面
+    ============================================================ */
+    #screen-avatar { padding: 20px; max-width: 480px; margin: 0 auto; }
+    #screen-avatar.active { display: block; }
 
-    /* 保存ステータス */
-    #saveStatus{text-align:center;font-size:.8rem;padding:8px;color:var(--muted);}
+    .sec-title { text-align: center; font-size: 1.3rem; font-weight: 800; color: var(--accent); margin-bottom: 4px; }
+    .sec-sub   { text-align: center; font-size: 0.8rem; color: var(--muted); margin-bottom: 18px; }
+
+    .avatar-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 18px; }
+    .av-card {
+      background: var(--card); border: 2px solid var(--border); border-radius: 18px;
+      padding: 18px 12px; text-align: center; cursor: pointer; transition: 0.15s;
+    }
+    .av-card:hover  { border-color: #555; }
+    .av-card.sel    { border-color: var(--accent); background: #2a0d1e; }
+    .av-card .av-em { font-size: 3rem; line-height: 1; }
+    .av-card .av-nm { font-size: 1rem; font-weight: 700; margin-top: 8px; }
+    .av-card .av-fl { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+    .av-card .av-tr { font-size: 0.7rem; color: var(--accent2); margin-top: 4px; background: rgba(245,166,35,0.12); border-radius: 20px; padding: 2px 8px; display: inline-block; }
+
+    /* ── 速度選択 ── */
+    .speed-box {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 14px 16px; margin-bottom: 16px;
+    }
+    .speed-box .speed-label {
+      font-size: 0.82rem; color: var(--muted); font-weight: 700; margin-bottom: 10px;
+    }
+    .speed-btns { display: flex; gap: 8px; }
+    .speed-btn {
+      flex: 1; padding: 10px 0; border: 2px solid var(--border); border-radius: 12px;
+      background: var(--bg); color: var(--text); font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; transition: 0.15s; text-align: center;
+    }
+    .speed-btn:hover { border-color: #555; }
+    .speed-btn.sel   { border-color: var(--accent2); background: rgba(245,166,35,0.15); color: var(--accent2); }
+    .speed-btn .sp-icon { font-size: 1.2rem; display: block; margin-bottom: 2px; }
+    .speed-btn .sp-text { font-size: 0.72rem; }
+
+    /* ============================================================
+       ボタン共通
+    ============================================================ */
+    .btn {
+      width: 100%; padding: 16px; border: none; border-radius: 16px;
+      font-size: 1.05rem; font-weight: 700; cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary   { background: var(--accent); color: white; }
+    .btn-secondary { background: var(--card); color: var(--muted); border: 1px solid var(--border); margin-top: 10px; }
+
+    /* ============================================================
+       ③ チャット画面
+    ============================================================ */
+    #screen-chat { display: flex; flex-direction: column; height: 100vh; }
+    #screen-chat.active { display: flex; }
+
+    /* ヘッダー */
+    #chatHeader {
+      background: var(--card); padding: 12px 16px;
+      display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    #chatHeader .hd-av   { font-size: 2.2rem; flex-shrink: 0; }
+    #chatHeader .hd-info h3 { font-size: 1rem; font-weight: 700; }
+    #chatHeader .hd-info p  { font-size: 0.72rem; color: var(--muted); }
+    #chatHeader .hd-right { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    /* ヘッダー内速度表示 */
+    #speedBadge {
+      padding: 5px 10px; background: rgba(245,166,35,0.15);
+      border: 1px solid var(--accent2); border-radius: 8px;
+      font-size: 0.75rem; font-weight: 700; color: var(--accent2);
+    }
+
+    #endBtnTop {
+      padding: 8px 14px; background: var(--accent);
+      color: white; border: none; border-radius: 10px;
+      font-size: 0.82rem; font-weight: 700; cursor: pointer;
+    }
+
+    /* 統計バー */
+    #statsBar {
+      background: #0a0a14; padding: 8px 16px;
+      display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .st-item { flex: 1; text-align: center; }
+    .st-item .sv { font-size: 1.3rem; font-weight: 800; color: var(--accent2); display: block; line-height: 1.2; }
+    .st-item .sl { font-size: 0.65rem; color: var(--muted); }
+    .st-item + .st-item { border-left: 1px solid var(--border); }
+
+    /* チャットエリア */
+    #chatBox { flex: 1; overflow-y: auto; padding: 16px; scroll-behavior: smooth; }
+    #chatBox::-webkit-scrollbar { width: 4px; }
+    #chatBox::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* バブル */
+    .bwrap { display: flex; margin-bottom: 16px; gap: 10px; align-items: flex-end; }
+    .bwrap.me { flex-direction: row-reverse; }
+    .bava { font-size: 1.8rem; flex-shrink: 0; }
+    .bubble {
+      max-width: 78%; padding: 12px 16px; border-radius: 20px;
+      line-height: 1.75; font-size: 0.95rem; word-break: break-word;
+    }
+    .bubble.ai { background: var(--bubble-ai); border-bottom-left-radius: 4px; }
+    .bubble.me { background: var(--bubble-me); border-bottom-right-radius: 4px; }
+
+    /* 単語クリック */
+    .wbtn {
+      display: inline; background: none; border: none; color: inherit;
+      cursor: pointer; padding: 0 1px; font-size: inherit; font-family: inherit;
+      text-decoration: underline dotted rgba(255,255,255,0.35);
+      width: auto; transition: color 0.1s;
+    }
+    .wbtn:hover { color: var(--accent2); }
+    .transl {
+      display: inline-block; background: var(--accent2); color: #1a1000;
+      font-size: 0.72rem; padding: 2px 9px; border-radius: 20px;
+      margin-left: 4px; font-weight: 700; vertical-align: middle;
+      animation: popIn 0.2s ease;
+    }
+    @keyframes popIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .word-badge { font-size: 0.68rem; color: var(--muted); margin-top: 5px; }
+
+    /* ローディングバブル */
+    .bubble.loading-dots { padding: 14px 18px; }
+    .dot { display: inline-block; width: 7px; height: 7px; background: var(--muted); border-radius: 50%; margin: 0 2px; animation: bounce 1.2s infinite; }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,80%,100%{transform:translateY(0);} 40%{transform:translateY(-8px);} }
+
+    /* ライブテキスト */
+    #liveText {
+      flex-shrink: 0; min-height: 44px;
+      background: #08080f; padding: 10px 16px;
+      font-size: 0.85rem; color: var(--blue);
+      border-top: 1px solid var(--border);
+      border-left: 3px solid var(--blue);
+      line-height: 1.5;
+    }
+
+    /* 入力バー */
+    #inputBar {
+      flex-shrink: 0; display: flex; gap: 10px;
+      padding: 10px 16px 16px; background: var(--card);
+      border-top: 1px solid var(--border);
+    }
+    #micBtn {
+      flex: 1; padding: 16px; border: none; border-radius: 16px;
+      background: var(--green); color: white;
+      font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: 0.15s;
+    }
+    #micBtn.rec { background: var(--accent); animation: pulse 1s infinite; }
+    #micBtn:disabled { background: #444; opacity: 0.6; cursor: not-allowed; }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.65;} }
+
+    /* ============================================================
+       ④ 結果画面
+    ============================================================ */
+    #screen-result { padding: 24px; max-width: 420px; margin: 0 auto; }
+    #screen-result.active { display: block; }
+
+    .result-card { background: var(--card); border-radius: 20px; padding: 28px 20px; text-align: center; margin-bottom: 16px; }
+    .result-card h2 { color: var(--accent); font-size: 1.4rem; margin-bottom: 16px; }
+    .res-emoji   { font-size: 3.5rem; margin: 8px 0; }
+    .res-comment { color: var(--muted); font-size: 0.9rem; margin: 10px 0 20px; }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
+    .stat-box { background: #0a0a14; border-radius: 14px; padding: 16px 8px; }
+    .stat-box .sv { font-size: 2rem; font-weight: 800; color: var(--accent2); display: block; }
+    .stat-box .sl { font-size: 0.7rem; color: var(--muted); margin-top: 3px; display: block; }
+    .rec-row { display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--border); font-size: 0.85rem; }
+    .rec-row span:last-child { color: var(--accent2); font-weight: 700; }
+
+    #saveStatus { text-align: center; font-size: 0.8rem; padding: 8px; color: var(--muted); }
   </style>
 </head>
 <body>
 
-<!-- ① ログイン画面 -->
+<!-- ========================================================
+     ① ログイン画面
+======================================================== -->
 <div id="screen-login" class="screen">
   <div class="logo-area">
     <span class="lg-emoji">🗣️</span>
@@ -138,13 +270,12 @@
   </div>
   <div class="login-box">
 
-    <!-- APIキー入力欄 -->
+    <!-- APIキー入力 -->
     <div id="apiKeyBox">
       <p>🔑 Anthropic APIキーを入力してください</p>
       <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off">
       <p class="api-tip">
-        キーは <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> で取得できます。<br>
-        ※ このページにのみ保存され、外部に送信されません。
+        キーは <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> で取得できます。
       </p>
     </div>
 
@@ -158,26 +289,53 @@
       <option value="">👤 名前を選択してください</option>
     </select>
 
-    <div id="loadStatus" style="text-align:center;color:var(--muted);padding:10px;font-size:.85rem;"></div>
+    <div id="loadStatus">名簿を読み込み中…</div>
 
-    <button class="btn btn-primary" onclick="goToAvatarSelect()" style="margin-top:4px;">
+    <button class="btn btn-primary" onclick="goToAvatarSelect()" style="margin-top: 4px;">
       次へ →
     </button>
   </div>
 </div>
 
-<!-- ② アバター選択画面 -->
+<!-- ========================================================
+     ② アバター選択画面
+======================================================== -->
 <div id="screen-avatar" class="screen">
-  <div style="padding-top:24px;">
+  <div style="padding-top: 24px;">
     <div class="sec-title">🎭 会話相手を選ぼう</div>
     <div class="sec-sub">声の種類・性格・アクセントが変わります</div>
     <div class="avatar-grid" id="avatarGrid"></div>
+
+    <!-- 音声速度選択 -->
+    <div class="speed-box">
+      <div class="speed-label">🔊 AIの話す速度を選んでください</div>
+      <div class="speed-btns">
+        <button class="speed-btn" data-speed="slow" onclick="setSpeed(this)">
+          <span class="sp-icon">🐢</span>
+          <span>遅い</span>
+          <span class="sp-text">0.65×</span>
+        </button>
+        <button class="speed-btn sel" data-speed="normal" onclick="setSpeed(this)">
+          <span class="sp-icon">🚶</span>
+          <span>普通</span>
+          <span class="sp-text">1.0×</span>
+        </button>
+        <button class="speed-btn" data-speed="fast" onclick="setSpeed(this)">
+          <span class="sp-icon">🐆</span>
+          <span>速い</span>
+          <span class="sp-text">1.35×</span>
+        </button>
+      </div>
+    </div>
+
     <button class="btn btn-primary" onclick="startConversation()">会話スタート！🎤</button>
     <button class="btn btn-secondary" onclick="showScreen('login')">← 戻る</button>
   </div>
 </div>
 
-<!-- ③ チャット画面 -->
+<!-- ========================================================
+     ③ チャット画面
+======================================================== -->
 <div id="screen-chat" class="screen">
   <div id="chatHeader">
     <div class="hd-av" id="hdAvaIcon">🤖</div>
@@ -185,24 +343,33 @@
       <h3 id="hdAvaName">AI Partner</h3>
       <p id="hdAvaDesc">英語で話しかけてみよう！</p>
     </div>
-    <button id="endBtnTop" onclick="endSession()">終了 💾</button>
+    <div class="hd-right">
+      <span id="speedBadge">普通</span>
+      <button id="endBtnTop" onclick="endSession()">終了 💾</button>
+    </div>
   </div>
+
   <div id="statsBar">
     <div class="st-item"><span class="sv" id="stTurns">0</span><span class="sl">ターン</span></div>
     <div class="st-item"><span class="sv" id="stWords">0</span><span class="sl">語</span></div>
     <div class="st-item"><span class="sv" id="stSessions">1</span><span class="sl">回目</span></div>
     <div class="st-item"><span class="sv" id="stMaxTurns">0</span><span class="sl">最高ターン</span></div>
   </div>
+
   <div id="chatBox"></div>
+
   <div id="liveText">🎤 「話す」ボタンを押して英語で話してください</div>
+
   <div id="inputBar">
     <button id="micBtn" onclick="handleMic()">🎤 話す</button>
   </div>
 </div>
 
-<!-- ④ 結果画面 -->
+<!-- ========================================================
+     ④ 結果画面
+======================================================== -->
 <div id="screen-result" class="screen">
-  <div style="padding-top:20px;">
+  <div style="padding-top: 20px;">
     <div class="result-card">
       <h2>🎉 セッション終了！</h2>
       <div class="res-emoji" id="rEmoji">🌱</div>
@@ -222,11 +389,10 @@
 
 <script>
 // ============================================================
-//  ▼▼▼ ここだけ書き換えてください ▼▼▼
+//  ▼▼▼ ここを書き換えてください ▼▼▼
 // ============================================================
-
-// GASのWebアプリURL（デプロイしたときのURL /exec で終わるもの）
 var GAS_URL = "https://script.google.com/macros/s/AKfycbxU6kJMip1_rzfMyD3Q0bssA0lRNL_PytYPIXIkligEvBV1PjEiT8xJHUSpL3_CFi-l/exec";
+// ============================================================
 
 // ============================================================
 //  アバター定義
@@ -236,7 +402,7 @@ var AVATARS = [
     system:"You are James, a friendly British English teacher for Japanese junior high students. Use British expressions occasionally (brilliant, cheers, lovely). Keep ALL replies to 2-3 short sentences. Use simple vocabulary. Respond in English only. Be warm and encouraging." },
   { id:"uk_f",  emoji:"👩🏼",  name:"Emma",   flag:"🇬🇧 British Female",   trait:"優しい・丁寧",     lang:"en-GB", pitch:1.2,  rate:0.82,
     system:"You are Emma, a kind British woman. Use British expressions (lovely, brilliant, quite right). Keep ALL replies to 2-3 short sentences. Use simple vocabulary. Respond in English only. Be friendly and supportive." },
-  { id:"us_m",  emoji:"👨🏻",  name:"Mike",   flag:"🇺🇸 American Male",   trait:"元気・フレンドリー", lang:"en-US", pitch:0.9,  rate:0.88,
+  { id:"us_m",  emoji:"👨🏻",  name:"Mike",   flag:"🇺🇸 American Male",    trait:"元気・フレンドリー", lang:"en-US", pitch:0.9,  rate:0.88,
     system:"You are Mike, an energetic American guy. Use American expressions (awesome, cool, great job). Keep ALL replies to 2-3 short sentences. Use simple vocabulary. Respond in English only. Be enthusiastic." },
   { id:"us_f",  emoji:"👱🏻‍♀️", name:"Sarah",  flag:"🇺🇸 American Female",  trait:"明るい・ポジティブ", lang:"en-US", pitch:1.1,  rate:0.88,
     system:"You are Sarah, an upbeat American girl. Use American expressions (totally, amazing, awesome). Keep ALL replies to 2-3 short sentences. Use simple vocabulary. Respond in English only. Be cheerful." },
@@ -246,23 +412,29 @@ var AVATARS = [
     system:"You are Olivia, a cheerful Australian woman. Use Australian expressions (mate, no worries, heaps). Keep ALL replies to 2-3 short sentences. Use simple vocabulary. Respond in English only. Be warm." }
 ];
 
+// 速度倍率マップ
+var SPEED_MAP = { slow: 0.65, normal: 1.0, fast: 1.35 };
+var SPEED_LABEL = { slow: "🐢 遅い", normal: "🚶 普通", fast: "🐆 速い" };
+
 // ============================================================
 //  状態変数
 // ============================================================
-var myData         = null;
-var fighters       = [];
-var selAvatar      = AVATARS[0];
-var chatHistory    = [];
-var sessionTurns   = 0;
-var sessionWords   = 0;
+var myData          = null;
+var fighters        = [];
+var selAvatar       = AVATARS[0];
+var selSpeed        = "normal";   // "slow" | "normal" | "fast"
+var chatHistory     = [];
+var sessionTurns    = 0;
+var sessionWords    = 0;
 var sessionTranscript = "";
-var recognition    = null;
-var isRecording    = false;
-var micBusy        = false;
-var finalTrans     = "";
-var synth          = window.speechSynthesis;
-var voices         = [];
-var apiKey         = "";
+var recognition     = null;
+var isRecording     = false;
+var micBusy         = false;
+var finalTrans      = "";
+var synth           = window.speechSynthesis;
+var voices          = [];
+var apiKey          = "";
+var loadIdCounter   = 0;
 
 // ============================================================
 //  初期化
@@ -271,143 +443,175 @@ window.onload = function() {
   // 音声リスト取得
   function loadVoices() { voices = synth.getVoices(); }
   loadVoices();
-  if (synth.onvoiceschanged !== undefined) { synth.onvoiceschanged = loadVoices; }
+  if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
 
-  // 保存済みAPIキーをlocalStorageから復元
-  var saved = localStorage.getItem('eikaiwa_apikey');
-  if (saved) document.getElementById('apiKeyInput').value = saved;
+  // 保存済みAPIキー復元
+  var savedKey = localStorage.getItem('eikaiwa_apikey');
+  if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
 
   // アバターグリッド生成
   buildAvatarGrid();
 
-  // GASから名簿データを取得して学年セレクトを構築
+  // ★ fetch で名簿取得（JSONP廃止 → タイムアウト問題解消）
   loadAllStudents();
 };
 
 // ============================================================
-//  GASから全生徒データを取得（JSONP方式 — CORS問題を完全回避）
+//  ★ 名簿取得：fetch 方式（JSONP廃止）
+//  GASが「全員」アクセスでデプロイされていればCORSは不要
 // ============================================================
 function loadAllStudents() {
-  document.getElementById('loadStatus').innerText = '名簿を読み込み中…';
-  gasJsonp("getAllStudents", null, function(data) {
+  setLoadStatus("名簿を読み込み中…", false);
+
+  // GASは GET リクエストに対してリダイレクト後にJSONを返す
+  // redirect: 'follow' でリダイレクトを追跡する
+  fetch(GAS_URL + "?action=getAllStudents", {
+    method: "GET",
+    redirect: "follow"
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error("HTTPエラー: " + res.status);
+    return res.json();
+  })
+  .then(function(data) {
+    if (!Array.isArray(data)) throw new Error("データ形式エラー（配列ではありません）");
     fighters = data;
-    var grades = [];
-    data.forEach(function(s) {
-      if (grades.indexOf(s.grade) === -1) grades.push(s.grade);
-    });
-    grades.sort();
-    var sel = document.getElementById('gradeSel');
-    sel.innerHTML = '<option value="">📚 学年を選択してください</option>';
-    grades.forEach(function(g) { sel.add(new Option(g + "年生", g)); });
-    document.getElementById('loadStatus').innerText = '';
-  }, function(e) {
-    document.getElementById('loadStatus').innerText = '⚠️ 名簿の読み込みに失敗しました: ' + e;
+    buildGradeSelect(data);
+    setLoadStatus("✅ " + data.length + "名の名簿を読み込みました", false);
+  })
+  .catch(function(err) {
+    // fetch失敗 → JSONP でリトライ
+    console.warn("fetch失敗、JSONPでリトライ:", err.message);
+    setLoadStatus("再接続中…", false);
+    loadAllStudentsJsonp();
   });
 }
 
-// ============================================================
-//  JSONP汎用関数（GASとの通信に使用）
-//  GETはJSONP、POSTはGETパラメータにJSONを乗せる
-// ============================================================
-var jsonpCallbackCounter = 0;
-function gasJsonp(action, postData, onSuccess, onError) {
-  var cbName = '__gasCb' + (++jsonpCallbackCounter);
-  var script = document.createElement('script');
-  var timer = null;
+// ── JSONPフォールバック ──────────────────────────────────
+var jsonpCounter = 0;
+function loadAllStudentsJsonp() {
+  var cbName = "__gasCb" + (++jsonpCounter);
+  var script  = document.createElement("script");
+  var timer   = null;
 
   window[cbName] = function(data) {
     clearTimeout(timer);
     script.remove();
     delete window[cbName];
-    onSuccess(data);
+    if (!Array.isArray(data)) {
+      setLoadStatus("⚠️ データ形式エラー。GASのデプロイ設定を確認してください。", true);
+      return;
+    }
+    fighters = data;
+    buildGradeSelect(data);
+    setLoadStatus("✅ " + data.length + "名の名簿を読み込みました（JSONP）", false);
   };
 
   timer = setTimeout(function() {
     script.remove();
     delete window[cbName];
-    onError('タイムアウト（10秒）');
-  }, 10000);
+    setLoadStatus(
+      "⚠️ 名簿の読み込みに失敗しました。\n\n" +
+      "【確認事項】\n" +
+      "① GASを「新しいデプロイ」として再デプロイしましたか？\n" +
+      "② デプロイの「アクセスできるユーザー」が「全員」になっていますか？\n" +
+      "③ 上部の GAS_URL が正しいURLですか？\n\n" +
+      "設定後にページを再読み込み（F5）してください。",
+      true
+    );
+  }, 12000);
 
-  var url = GAS_URL + "?action=" + encodeURIComponent(action) + "&callback=" + cbName;
-  if (postData) {
-    url += "&data=" + encodeURIComponent(JSON.stringify(postData));
-  }
-  script.src = url;
+  script.src = GAS_URL + "?action=getAllStudents&callback=" + cbName;
   document.head.appendChild(script);
 }
 
+function buildGradeSelect(data) {
+  var grades = [];
+  data.forEach(function(s) {
+    if (grades.indexOf(s.grade) === -1) grades.push(s.grade);
+  });
+  grades.sort();
+  var sel = document.getElementById("gradeSel");
+  sel.innerHTML = "<option value=''>📚 学年を選択してください</option>";
+  grades.forEach(function(g) { sel.add(new Option(g + "年生", g)); });
+}
+
+function setLoadStatus(msg, isError) {
+  var el = document.getElementById("loadStatus");
+  el.innerText = msg;
+  el.className = isError ? "error" : "";
+}
+
+// ============================================================
+//  ログイン操作
+// ============================================================
 function loadClasses() {
-  var g = document.getElementById('gradeSel').value;
-  var classSel = document.getElementById('classSel');
-  var nameSel  = document.getElementById('nameSel');
-  classSel.style.display = 'none';
-  nameSel.style.display  = 'none';
+  var g = document.getElementById("gradeSel").value;
+  var classSel = document.getElementById("classSel");
+  var nameSel  = document.getElementById("nameSel");
+  classSel.style.display = "none";
+  nameSel.style.display  = "none";
   if (!g) return;
+
   var classes = [];
   fighters.forEach(function(s) {
     if (String(s.grade) === String(g) && classes.indexOf(s.cls) === -1) classes.push(s.cls);
   });
   classes.sort();
-  classSel.innerHTML = '<option value="">🏫 クラスを選択してください</option>';
+  classSel.innerHTML = "<option value=''>🏫 クラスを選択してください</option>";
   classes.forEach(function(c) { classSel.add(new Option(c + "組", c)); });
-  classSel.style.display = 'block';
+  classSel.style.display = "block";
 }
 
 function loadNames() {
-  var g = document.getElementById('gradeSel').value;
-  var c = document.getElementById('classSel').value;
-  var nameSel = document.getElementById('nameSel');
-  nameSel.style.display = 'none';
+  var g = document.getElementById("gradeSel").value;
+  var c = document.getElementById("classSel").value;
+  var nameSel = document.getElementById("nameSel");
+  nameSel.style.display = "none";
   if (!c) return;
-  var filtered = fighters.filter(function(s){ return String(s.grade)===String(g) && String(s.cls)===String(c); });
-  nameSel.innerHTML = '<option value="">👤 名前を選択してください</option>';
-  filtered.forEach(function(s){ nameSel.add(new Option(s.name, s.id)); });
-  nameSel.style.display = 'block';
+
+  var filtered = fighters.filter(function(s) {
+    return String(s.grade) === String(g) && String(s.cls) === String(c);
+  });
+  nameSel.innerHTML = "<option value=''>👤 名前を選択してください</option>";
+  filtered.forEach(function(s) { nameSel.add(new Option(s.name, s.id)); });
+  nameSel.style.display = "block";
 }
 
 function goToAvatarSelect() {
-  var id = document.getElementById('nameSel').value;
+  var id = document.getElementById("nameSel").value;
   if (!id) { alert("名前を選んでください！"); return; }
 
-  // APIキー確認・保存
-  apiKey = document.getElementById('apiKeyInput').value.trim();
-  if (!apiKey || !apiKey.startsWith('sk-ant-')) {
+  apiKey = document.getElementById("apiKeyInput").value.trim();
+  if (!apiKey || !apiKey.startsWith("sk-ant-")) {
     alert("正しいAnthropicのAPIキーを入力してください。\n（sk-ant-... で始まるキーです）");
     return;
   }
-  localStorage.setItem('eikaiwa_apikey', apiKey);
+  localStorage.setItem("eikaiwa_apikey", apiKey);
 
-  myData = fighters.find(function(f){ return String(f.id) === String(id); });
+  myData = fighters.find(function(f) { return String(f.id) === String(id); });
   if (!myData) { alert("生徒データが見つかりません。"); return; }
-  showScreen('avatar');
-}
-
-// ============================================================
-//  画面切替
-// ============================================================
-function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
-  document.getElementById('screen-' + name).classList.add('active');
+  showScreen("avatar");
 }
 
 // ============================================================
 //  アバターグリッド生成
 // ============================================================
 function buildAvatarGrid() {
-  var grid = document.getElementById('avatarGrid');
-  grid.innerHTML = '';
+  var grid = document.getElementById("avatarGrid");
+  grid.innerHTML = "";
   AVATARS.forEach(function(av, i) {
-    var div = document.createElement('div');
-    div.className = 'av-card' + (i === 0 ? ' sel' : '');
+    var div = document.createElement("div");
+    div.className = "av-card" + (i === 0 ? " sel" : "");
     div.innerHTML =
-      '<div class="av-em">' + av.emoji + '</div>' +
-      '<div class="av-nm">' + av.name  + '</div>' +
-      '<div class="av-fl">' + av.flag  + '</div>' +
-      '<div class="av-tr">' + av.trait + '</div>';
-    div.addEventListener('click', (function(avatar, el){
-      return function(){
-        document.querySelectorAll('.av-card').forEach(function(c){ c.classList.remove('sel'); });
-        el.classList.add('sel');
+      '<div class="av-em">' + av.emoji + "</div>" +
+      '<div class="av-nm">' + av.name  + "</div>" +
+      '<div class="av-fl">' + av.flag  + "</div>" +
+      '<div class="av-tr">' + av.trait + "</div>";
+    div.addEventListener("click", (function(avatar, el) {
+      return function() {
+        document.querySelectorAll(".av-card").forEach(function(c) { c.classList.remove("sel"); });
+        el.classList.add("sel");
         selAvatar = avatar;
       };
     })(av, div));
@@ -416,29 +620,48 @@ function buildAvatarGrid() {
 }
 
 // ============================================================
+//  速度選択
+// ============================================================
+function setSpeed(btn) {
+  document.querySelectorAll(".speed-btn").forEach(function(b) { b.classList.remove("sel"); });
+  btn.classList.add("sel");
+  selSpeed = btn.getAttribute("data-speed");
+}
+
+// ============================================================
+//  画面切替
+// ============================================================
+function showScreen(name) {
+  document.querySelectorAll(".screen").forEach(function(s) { s.classList.remove("active"); });
+  document.getElementById("screen-" + name).classList.add("active");
+}
+
+// ============================================================
 //  会話スタート
 // ============================================================
 function startConversation() {
   chatHistory = []; sessionTurns = 0; sessionWords = 0; sessionTranscript = "";
-  document.getElementById('chatBox').innerHTML = '';
+  document.getElementById("chatBox").innerHTML = "";
   micBusy = false;
 
-  document.getElementById('hdAvaIcon').innerText = selAvatar.emoji;
-  document.getElementById('hdAvaName').innerText = selAvatar.name;
-  document.getElementById('hdAvaDesc').innerText = selAvatar.flag;
-  document.getElementById('stSessions').innerText  = (Number(myData.totalSessions) || 0) + 1;
-  document.getElementById('stMaxTurns').innerText  = myData.maxTurns || 0;
-  document.getElementById('liveText').innerText = '🎤 「話す」ボタンを押して英語で話してください';
-  showScreen('chat');
+  document.getElementById("hdAvaIcon").innerText = selAvatar.emoji;
+  document.getElementById("hdAvaName").innerText = selAvatar.name;
+  document.getElementById("hdAvaDesc").innerText = selAvatar.flag;
+  document.getElementById("speedBadge").innerText = SPEED_LABEL[selSpeed];
+  document.getElementById("stSessions").innerText = (Number(myData.totalSessions) || 0) + 1;
+  document.getElementById("stMaxTurns").innerText = myData.maxTurns || 0;
+  document.getElementById("liveText").innerText   = '🎤 「話す」ボタンを押して英語で話してください';
+
+  showScreen("chat");
   updateStats();
 
   var opening = "Hello! I'm " + selAvatar.name + ". Nice to meet you! What's your name?";
-  addBubble('ai', opening);
+  addBubble("ai", opening);
   speakText(opening);
 }
 
 // ============================================================
-//  マイクボタン — getUserMedia不使用・直接SpeechRecognition
+//  マイクボタン
 // ============================================================
 function handleMic() {
   if (micBusy) return;
@@ -446,58 +669,60 @@ function handleMic() {
 
   var Speech = window.webkitSpeechRecognition || window.SpeechRecognition;
   if (!Speech) {
-    alert("音声認識はSafari（iPhone）またはChrome（PC/Android）でご利用ください。");
+    alert("音声認識はPC版 Google Chrome またはSafari（iPhone）でご利用ください。");
     return;
   }
+
   synth.cancel();
   recognition = new Speech();
-  recognition.lang = 'en-US';
-  recognition.continuous = true;
+  recognition.lang = "en-US";
+  recognition.continuous     = true;
   recognition.interimResults = true;
 
   recognition.onstart = function() {
-    isRecording = true; finalTrans = "";
-    document.getElementById('micBtn').innerText = "🛑 止めて送信";
-    document.getElementById('micBtn').classList.add('rec');
-    document.getElementById('liveText').innerText = "👂 聞いています…話し終わったら「止めて送信」を押してください";
+    isRecording = true;
+    finalTrans  = "";
+    document.getElementById("micBtn").innerText = "🛑 止めて送信";
+    document.getElementById("micBtn").classList.add("rec");
+    document.getElementById("liveText").innerText = "👂 聞いています… 話し終わったら「止めて送信」を押してください";
   };
 
   recognition.onresult = function(e) {
-    var interim = ""; finalTrans = "";
+    var interim = "";
+    finalTrans  = "";
     for (var i = e.resultIndex; i < e.results.length; i++) {
       if (e.results[i].isFinal) finalTrans += e.results[i][0].transcript + " ";
       else interim += e.results[i][0].transcript;
     }
-    document.getElementById('liveText').innerText = "🎤 " + (finalTrans || interim);
+    document.getElementById("liveText").innerText = "🎤 " + (finalTrans || interim);
   };
 
   recognition.onerror = function(e) {
-    console.log("SpeechError:", e.error);
-    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-      document.getElementById('liveText').innerText =
+    if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+      document.getElementById("liveText").innerText =
         "⚠️ マイクが拒否されました。\n" +
-        "【iPhone】設定 → プライバシー → マイク → Safari/Chrome をオンに\n" +
-        "【Android】ブラウザのアドレスバー左のアイコン → マイク → 許可";
-    } else if (e.error === 'no-speech') {
-      document.getElementById('liveText').innerText = "⚠️ 音声が検出されませんでした。もう一度どうぞ。";
-    } else if (e.error === 'network') {
-      document.getElementById('liveText').innerText = "⚠️ ネットワークエラー。接続を確認してください。";
+        "【PC Chrome】アドレスバー左の🔒 → サイトの設定 → マイク → 許可\n" +
+        "【iPhone Safari】設定 → Safari → マイク → 許可";
+    } else if (e.error === "no-speech") {
+      document.getElementById("liveText").innerText = "⚠️ 音声が検出されませんでした。もう一度どうぞ。";
+    } else if (e.error === "network") {
+      document.getElementById("liveText").innerText = "⚠️ ネットワークエラー。接続を確認してください。";
     } else {
-      document.getElementById('liveText').innerText = "⚠️ エラー(" + e.error + ")もう一度お試しください。";
+      document.getElementById("liveText").innerText = "⚠️ エラー（" + e.error + "）。もう一度試してください。";
     }
     resetMicBtn(); isRecording = false;
   };
 
   recognition.onend = function() {
-    // continuous=trueでも止まることがある（Safari対策：再起動）
+    // continuous=true でも止まる場合はリスタート
     if (isRecording) {
-      try { recognition.start(); } catch(ex) { /* 既に起動中の場合は無視 */ }
+      try { recognition.start(); } catch(ex) { /* 起動中なら無視 */ }
     }
   };
 
   try { recognition.start(); }
   catch(e) {
-    document.getElementById('liveText').innerText = "⚠️ マイクを起動できませんでした。もう一度タップしてください。";
+    document.getElementById("liveText").innerText = "⚠️ マイクを起動できませんでした。もう一度タップしてください。";
   }
 }
 
@@ -508,65 +733,64 @@ function stopRec() {
 
   var text = finalTrans.trim();
   if (!text) {
-    document.getElementById('liveText').innerText = "⚠️ 聞き取れませんでした。もう一度試してください。";
+    document.getElementById("liveText").innerText = "⚠️ 聞き取れませんでした。もう一度試してください。";
     return;
   }
 
-  var words = text.replace(/[.,?!'"]/g,"").split(/\s+/).filter(function(w){ return w.length>0; });
+  var words = text.replace(/[.,?!'"]/g, "").split(/\s+/).filter(function(w) { return w.length > 0; });
   sessionWords += words.length;
   sessionTurns++;
   sessionTranscript += "[Turn " + sessionTurns + "] You: " + text + "\n";
   updateStats();
-  addBubble('me', text);
-  document.getElementById('liveText').innerText = "🤔 " + selAvatar.name + " が考えています…";
+  addBubble("me", text);
+  document.getElementById("liveText").innerText = "🤔 " + selAvatar.name + " が考えています…";
 
   micBusy = true;
-  document.getElementById('micBtn').disabled = true;
-  document.getElementById('micBtn').innerText = "⏳ 待機中…";
+  document.getElementById("micBtn").disabled = true;
+  document.getElementById("micBtn").innerText = "⏳ 待機中…";
 
-  chatHistory.push({ role:"user", content: text });
+  chatHistory.push({ role: "user", content: text });
   var loadId = addLoadingBubble();
 
-  // Anthropic APIを直接呼び出す
-  callAnthropicAPI(text, function(reply){
+  callAnthropicAPI(text, function(reply) {
     removeLoadingBubble(loadId);
-    chatHistory.push({ role:"assistant", content: reply });
+    chatHistory.push({ role: "assistant", content: reply });
     sessionTranscript += "[Turn " + sessionTurns + "] " + selAvatar.name + ": " + reply + "\n";
-    addBubble('ai', reply);
+    addBubble("ai", reply);
     speakText(reply);
-    document.getElementById('liveText').innerText = '🎤 「話す」ボタンを押して英語で話してください';
+    document.getElementById("liveText").innerText = '🎤 「話す」ボタンを押して英語で話してください';
     micBusy = false;
-    document.getElementById('micBtn').disabled = false;
+    document.getElementById("micBtn").disabled = false;
     resetMicBtn();
-  }, function(err){
+  }, function(err) {
     removeLoadingBubble(loadId);
-    document.getElementById('liveText').innerText = "⚠️ AIエラー: " + err;
+    document.getElementById("liveText").innerText = "⚠️ AIエラー: " + err;
     chatHistory.pop();
     micBusy = false;
-    document.getElementById('micBtn').disabled = false;
+    document.getElementById("micBtn").disabled = false;
     resetMicBtn();
   });
 }
 
 function resetMicBtn() {
-  document.getElementById('micBtn').innerText = "🎤 話す";
-  document.getElementById('micBtn').classList.remove('rec');
+  document.getElementById("micBtn").innerText = "🎤 話す";
+  document.getElementById("micBtn").classList.remove("rec");
 }
 
 // ============================================================
-//  Anthropic API 直接呼び出し（GAS不使用）
+//  Anthropic API 直接呼び出し
 // ============================================================
 function callAnthropicAPI(userMessage, onSuccess, onError) {
-  var messages = chatHistory.slice(0, -1); // 最後のuserメッセージはhistoryから除外（下で追加）
-  messages.push({ role:"user", content: userMessage });
+  var messages = chatHistory.slice(0, -1);
+  messages.push({ role: "user", content: userMessage });
 
   fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
-      "Content-Type":        "application/json",
-      "x-api-key":           apiKey,
-      "anthropic-version":   "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true"  // ブラウザ直接アクセス用ヘッダー
+      "Content-Type":      "application/json",
+      "x-api-key":         apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
     },
     body: JSON.stringify({
       model:      "claude-haiku-4-5-20251001",
@@ -575,12 +799,12 @@ function callAnthropicAPI(userMessage, onSuccess, onError) {
       messages:   messages
     })
   })
-  .then(function(r){ return r.json(); })
-  .then(function(data){
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
     if (data.error) { onError(data.error.message); return; }
     onSuccess(data.content[0].text);
   })
-  .catch(function(e){ onError(e.message); });
+  .catch(function(e) { onError(e.message); });
 }
 
 // ============================================================
@@ -590,38 +814,41 @@ function translateWord(word, callback) {
   fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
-      "Content-Type":        "application/json",
-      "x-api-key":           apiKey,
-      "anthropic-version":   "2023-06-01",
+      "Content-Type":      "application/json",
+      "x-api-key":         apiKey,
+      "anthropic-version": "2023-06-01",
       "anthropic-dangerous-direct-browser-access": "true"
     },
     body: JSON.stringify({
-      model:      "claude-haiku-4-5-20251001",
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 60,
-      messages: [{ role:"user", content:"「" + word + "」の日本語の意味を「単語 → 意味（品詞）」の形式で一行だけ答えてください。" }]
+      messages: [{ role: "user", content: "「" + word + "」の日本語の意味を「単語 → 意味（品詞）」の形式で一行だけ答えてください。" }]
     })
   })
-  .then(function(r){ return r.json(); })
-  .then(function(data){ callback(data.content[0].text.trim()); })
-  .catch(function(){ callback(word + " → (翻訳エラー)"); });
+  .then(function(r) { return r.json(); })
+  .then(function(data) { callback(data.content[0].text.trim()); })
+  .catch(function() { callback(word + " → (翻訳エラー)"); });
 }
 
 // ============================================================
 //  ローディングバブル
 // ============================================================
-var loadIdCounter = 0;
 function addLoadingBubble() {
-  var id = ++loadIdCounter;
-  var box = document.getElementById('chatBox');
-  var wrap = document.createElement('div');
-  wrap.className = 'bwrap'; wrap.id = 'ld-' + id;
-  wrap.innerHTML = '<div class="bava">' + selAvatar.emoji + '</div>' +
+  var id   = ++loadIdCounter;
+  var box  = document.getElementById("chatBox");
+  var wrap = document.createElement("div");
+  wrap.className = "bwrap";
+  wrap.id = "ld-" + id;
+  wrap.innerHTML =
+    '<div class="bava">' + selAvatar.emoji + "</div>" +
     '<div class="bubble ai loading-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
-  box.appendChild(wrap); box.scrollTop = box.scrollHeight;
+  box.appendChild(wrap);
+  box.scrollTop = box.scrollHeight;
   return id;
 }
+
 function removeLoadingBubble(id) {
-  var el = document.getElementById('ld-' + id);
+  var el = document.getElementById("ld-" + id);
   if (el) el.remove();
 }
 
@@ -629,30 +856,34 @@ function removeLoadingBubble(id) {
 //  バブル追加
 // ============================================================
 function addBubble(who, text) {
-  var box  = document.getElementById('chatBox');
-  var wrap = document.createElement('div');
-  wrap.className = 'bwrap ' + who;
-  var avaDiv = document.createElement('div');
-  avaDiv.className = 'bava';
-  avaDiv.innerText = (who === 'ai') ? selAvatar.emoji : '🧑‍🎓';
-  var bub = document.createElement('div');
-  bub.className = 'bubble ' + who;
+  var box  = document.getElementById("chatBox");
+  var wrap = document.createElement("div");
+  wrap.className = "bwrap " + who;
 
-  if (who === 'ai') {
+  var avaDiv = document.createElement("div");
+  avaDiv.className = "bava";
+  avaDiv.innerText = (who === "ai") ? selAvatar.emoji : "🧑‍🎓";
+
+  var bub = document.createElement("div");
+  bub.className = "bubble " + who;
+
+  if (who === "ai") {
     text.split(/(\s+)/).forEach(function(token) {
       if (token.trim().length > 0) {
-        var btn = document.createElement('button');
-        btn.className = 'wbtn'; btn.innerText = token;
+        var btn = document.createElement("button");
+        btn.className = "wbtn";
+        btn.innerText = token;
         btn.title = "タップで日本語訳";
-        btn.addEventListener('click', (function(w, el){
-          return function(e){
+        btn.addEventListener("click", (function(w, el) {
+          return function(e) {
             e.stopPropagation();
-            if (el.querySelector('.transl')) return;
-            var clean = w.replace(/[.,?!'"()]/g,"");
+            if (el.querySelector(".transl")) return;
+            var clean = w.replace(/[.,?!'"()]/g, "");
             if (!clean) return;
-            translateWord(clean, function(jp){
-              var tip = document.createElement('span');
-              tip.className = 'transl'; tip.innerText = jp;
+            translateWord(clean, function(jp) {
+              var tip = document.createElement("span");
+              tip.className = "transl";
+              tip.innerText = jp;
               el.appendChild(tip);
             });
           };
@@ -662,96 +893,137 @@ function addBubble(who, text) {
         bub.appendChild(document.createTextNode(token));
       }
     });
+
     var wc = text.replace(/[.,?!'"]/g,"").split(/\s+/).filter(function(w){ return w.length>0; }).length;
-    var badge = document.createElement('div');
-    badge.className = 'word-badge'; badge.innerText = wc + " words";
+    var badge = document.createElement("div");
+    badge.className = "word-badge";
+    badge.innerText = wc + " words";
     bub.appendChild(badge);
+
   } else {
     bub.innerText = text;
   }
 
-  if (who === 'ai') { wrap.appendChild(avaDiv); wrap.appendChild(bub); }
-  else              { wrap.appendChild(bub); wrap.appendChild(avaDiv); }
-  box.appendChild(wrap); box.scrollTop = box.scrollHeight;
+  if (who === "ai") { wrap.appendChild(avaDiv); wrap.appendChild(bub); }
+  else              { wrap.appendChild(bub);    wrap.appendChild(avaDiv); }
+
+  box.appendChild(wrap);
+  box.scrollTop = box.scrollHeight;
 }
 
 // ============================================================
-//  TTS
+//  ★ TTS — 速度倍率を適用して発話
 // ============================================================
 function speakText(text) {
   if (!synth) return;
   synth.cancel();
-  setTimeout(function(){
+
+  setTimeout(function() {
     var u = new SpeechSynthesisUtterance(text);
-    u.lang = selAvatar.lang; u.pitch = selAvatar.pitch; u.rate = selAvatar.rate;
+    u.lang  = selAvatar.lang;
+    u.pitch = selAvatar.pitch;
+
+    // ★ 速度倍率 = アバターのbase rate × 選択した速度係数
+    u.rate = selAvatar.rate * SPEED_MAP[selSpeed];
+
     if (voices.length === 0) voices = synth.getVoices();
-    var country = selAvatar.lang.split('-')[1];
-    var matched = voices.find(function(v){ return v.lang === selAvatar.lang; })
-                || voices.find(function(v){ return v.lang.includes(country); })
-                || voices.find(function(v){ return v.lang.startsWith('en'); });
+    var country = selAvatar.lang.split("-")[1];
+    var matched = voices.find(function(v) { return v.lang === selAvatar.lang; })
+                || voices.find(function(v) { return v.lang.includes(country); })
+                || voices.find(function(v) { return v.lang.startsWith("en"); });
     if (matched) u.voice = matched;
+
     synth.speak(u);
-  }, 150);
+  }, 200);
 }
 
 // ============================================================
 //  統計更新
 // ============================================================
 function updateStats() {
-  document.getElementById('stTurns').innerText = sessionTurns;
-  document.getElementById('stWords').innerText = sessionWords;
+  document.getElementById("stTurns").innerText = sessionTurns;
+  document.getElementById("stWords").innerText = sessionWords;
 }
 
 // ============================================================
-//  セッション終了・GASに保存
+//  セッション終了・保存
 // ============================================================
 function endSession() {
   synth.cancel();
-  if (isRecording) { isRecording = false; if (recognition) { recognition.onend=null; recognition.stop(); } }
+  if (isRecording) {
+    isRecording = false;
+    if (recognition) { recognition.onend = null; recognition.stop(); }
+  }
 
   var newMaxTurns   = Math.max(Number(myData.maxTurns) || 0, sessionTurns);
   var newTotalWords = (Number(myData.totalWords) || 0) + sessionWords;
 
-  document.getElementById('rTurns').innerText    = sessionTurns;
-  document.getElementById('rWords').innerText    = sessionWords;
-  document.getElementById('rSessions').innerText = (Number(myData.totalSessions) || 0) + 1;
-  document.getElementById('rMaxTurns').innerText = newMaxTurns + " ターン";
-  document.getElementById('rTotalWords').innerText = newTotalWords + " 語";
+  document.getElementById("rTurns").innerText    = sessionTurns;
+  document.getElementById("rWords").innerText    = sessionWords;
+  document.getElementById("rSessions").innerText = (Number(myData.totalSessions) || 0) + 1;
+  document.getElementById("rMaxTurns").innerText = newMaxTurns + " ターン";
+  document.getElementById("rTotalWords").innerText = newTotalWords + " 語";
 
   var emoji = "🌱", comment = "次はもっと話してみよう！Keep going!";
-  if      (sessionTurns >= 15) { emoji="🏆"; comment="素晴らしい！たくさん英語で話せました！Excellent!"; }
-  else if (sessionTurns >= 10) { emoji="🥇"; comment="とてもよく話せました！Great job!"; }
-  else if (sessionTurns >= 6)  { emoji="🥈"; comment="いい調子！Good job!"; }
-  else if (sessionTurns >= 3)  { emoji="🥉"; comment="まずまずです！Nice try!"; }
-  document.getElementById('rEmoji').innerText   = emoji;
-  document.getElementById('rComment').innerText = comment;
-  document.getElementById('saveStatus').innerText = "💾 データを保存中…";
+  if      (sessionTurns >= 15) { emoji = "🏆"; comment = "素晴らしい！たくさん英語で話せました！Excellent!"; }
+  else if (sessionTurns >= 10) { emoji = "🥇"; comment = "とてもよく話せました！Great job!"; }
+  else if (sessionTurns >= 6)  { emoji = "🥈"; comment = "いい調子！Good job!"; }
+  else if (sessionTurns >= 3)  { emoji = "🥉"; comment = "まずまずです！Nice try!"; }
+  document.getElementById("rEmoji").innerText   = emoji;
+  document.getElementById("rComment").innerText = comment;
+  document.getElementById("saveStatus").innerText = "💾 データを保存中…";
 
-  showScreen('result');
+  showScreen("result");
 
-  // GASにデータをJSONPで送信して保存
-  var grade = document.getElementById('gradeSel').value;
-  var cls   = document.getElementById('classSel').value;
-
-  gasJsonp("recordSession", {
-    grade:      grade,
-    cls:        cls,
-    id:         myData.id,
-    name:       myData.name,
-    words:      sessionWords,
-    turns:      sessionTurns,
+  // ★ GASへの保存も fetch 方式に統一
+  var grade = document.getElementById("gradeSel").value;
+  var cls   = document.getElementById("classSel").value;
+  var payload = {
+    grade: grade, cls: cls,
+    id: myData.id, name: myData.name,
+    words: sessionWords, turns: sessionTurns,
     transcript: sessionTranscript
-  }, function(res) {
-    document.getElementById('saveStatus').innerText = res.status === "OK" ? "✅ 保存完了！" : "⚠️ 保存エラー: " + res.message;
+  };
+
+  fetch(GAS_URL + "?action=recordSession&data=" + encodeURIComponent(JSON.stringify(payload)), {
+    method: "GET",
+    redirect: "follow"
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(res) {
+    document.getElementById("saveStatus").innerText = res.status === "OK" ? "✅ 保存完了！" : "⚠️ 保存エラー: " + res.message;
     if (res.status === "OK") {
-      myData.totalSessions = (Number(myData.totalSessions)||0) + 1;
+      myData.totalSessions = (Number(myData.totalSessions) || 0) + 1;
       myData.totalWords    = newTotalWords;
       myData.maxTurns      = newMaxTurns;
     }
-  }, function(e) {
-    document.getElementById('saveStatus').innerText = "⚠️ 保存に失敗しました: " + e;
+  })
+  .catch(function(e) {
+    // fetch失敗 → JSONPフォールバックで保存
+    var cbName = "__gasCb" + (++jsonpCounter);
+    var script  = document.createElement("script");
+    var timer   = null;
+
+    window[cbName] = function(res) {
+      clearTimeout(timer);
+      script.remove();
+      delete window[cbName];
+      document.getElementById("saveStatus").innerText =
+        res.status === "OK" ? "✅ 保存完了！" : "⚠️ 保存エラー: " + res.message;
+    };
+
+    timer = setTimeout(function() {
+      script.remove();
+      delete window[cbName];
+      document.getElementById("saveStatus").innerText = "⚠️ 保存できませんでした（タイムアウト）";
+    }, 12000);
+
+    script.src = GAS_URL + "?action=recordSession&data=" +
+      encodeURIComponent(JSON.stringify(payload)) + "&callback=" + cbName;
+    document.head.appendChild(script);
   });
 }
 </script>
 </body>
 </html>
+
